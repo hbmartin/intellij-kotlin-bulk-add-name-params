@@ -1,18 +1,32 @@
-<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<!-- https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.hbmartin.intellijkotlinbulkaddnameparams</id>
-    <name>intellij-kotlin-bulk-add-name-params</name>
-    <vendor>hbmartin</vendor>
+    <name>Kotlin Bulk Add Name Params</name>
+    <vendor email="me@haroldmartin.me" url="https://github.com/hbmartin/">Harold Martin</vendor>
 
+    <!-- https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.java</depends>
+    <depends>org.jetbrains.kotlin</depends>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.hbmartin.intellijkotlinbulkaddnameparams.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.hbmartin.intellijkotlinbulkaddnameparams.services.MyProjectService"/>
-    </extensions>
+    <!-- Text to display as description on Preferences/Settings | Plugin page -->
+    <description>
+        <![CDATA[
+          Adds named params to all callers of a given Kotlin method or file
+        ]]>
+    </description>
 
-    <applicationListeners>
-        <listener class="com.github.hbmartin.intellijkotlinbulkaddnameparams.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
+    <!-- Text to display as company information on Preferences/Settings | Plugin page -->
+<!--    <vendor url="https://plugins.jetbrains.com">IntelliJ Platform SDK</vendor>-->
+
+    <actions>
+        <action id="BulkAddNamedParams"
+                class="com.github.hbmartin.intellijkotlinbulkaddnameparams.BulkAddNamedParamsAction"
+                text="Bulk Add Named Params"
+                description="Adds named params to all callers of a given Kotlin method or file">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="CodeMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
