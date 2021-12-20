@@ -3,13 +3,9 @@ package com.github.hbmartin.intellijkotlinbulkaddnameparams
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.application.Application
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -43,19 +39,23 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
     }
 
     private fun PsiElement.findParentAndWriteNames(editor: Editor?) {
-        val actionParent = ApplicationManager.getApplication().runReadAction<PsiElement> {
-            return@runReadAction this.findFirstEligibleParent()
+        val app = ApplicationManager.getApplication()
+        val searchResultsForParentElementReferencesToThisElement = app.runReadAction<List<PsiElement>> {
+            val parent = this.findFirstEligibleParent()
+            val elementsToSearchFor = if (parent is PsiFile) {
+                parent.children.filter { it is KtNamedFunction || it is KtClass }
+            } else {
+                listOf(parent)
+            }
+            return@runReadAction elementsToSearchFor.map { searchElement ->
+                ReferencesSearch.search(searchElement).findAll().map { it.element.parent }
+            }.flatten()
         }
 
-        WriteCommandAction.runWriteCommandAction(this.project) {
-            if (actionParent is PsiFile) {
-                actionParent.children.forEach {
-                    if (it is KtNamedFunction || it is KtClass) {
-                        it.writeReferenceNames(editor)
-                    }
-                }
-            } else {
-                actionParent.writeReferenceNames(editor)
+
+        app.runWriteAction {
+            searchResultsForParentElementReferencesToThisElement.forEach {
+                (it as? KtCallElement)?.writeReferenceNames(editor)
             }
         }
     }
@@ -64,18 +64,13 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
         e.presentation.isEnabled = e.getDetails().isEligible()
     }
 
-    private fun PsiElement.writeReferenceNames(editor: Editor?) {
-        ReferencesSearch.search(this).findAll().forEach { reference ->
-            val parent = reference.element.parent
-            if (parent is KtCallElement) {
-                addNames.applicabilityRange(parent)?.let { _ ->
-                    addNames.applyTo(parent, editor)
-                    parent.containingFile.commitAndUnblockDocument()
-                    parent.valueArgumentList?.let {
-                        chopArguments.applyTo(it, editor)
-                        parent.containingFile.commitAndUnblockDocument()
-                    }
-                }
+    private fun KtCallElement.writeReferenceNames(editor: Editor?) {
+        addNames.applicabilityRange(this)?.let { _ ->
+            addNames.applyTo(this, editor)
+            this.containingFile.commitAndUnblockDocument()
+            this.valueArgumentList?.let {
+                chopArguments.applyTo(it, editor)
+                this.containingFile.commitAndUnblockDocument()
             }
         }
     }

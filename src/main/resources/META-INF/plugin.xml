@@ -17,9 +17,6 @@
         ]]>
     </description>
 
-    <!-- Text to display as company information on Preferences/Settings | Plugin page -->
-<!--    <vendor url="https://plugins.jetbrains.com">IntelliJ Platform SDK</vendor>-->
-
     <actions>
         <action id="BulkAddNamedParams"
                 class="com.github.hbmartin.intellijkotlinbulkaddnameparams.BulkAddNamedParamsAction"
