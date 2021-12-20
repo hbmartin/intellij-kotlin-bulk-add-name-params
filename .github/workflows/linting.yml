@@ -28,6 +28,6 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
       - name: Run Detekt
-        run: ./gradlew detektMain
+        run: ./gradlew detektMain ktlintCheck
       - name: Stop Gradle
         run: ./gradlew --stop

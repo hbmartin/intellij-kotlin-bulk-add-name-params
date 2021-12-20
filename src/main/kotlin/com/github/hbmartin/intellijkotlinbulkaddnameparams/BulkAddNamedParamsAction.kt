@@ -28,9 +28,9 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
 
         if (actionParent is PsiFile) {
             actionParent.children.forEach {
-               if (it is KtNamedFunction || it is KtClass) {
-                   it.writeReferenceNames(editor)
-               }
+                if (it is KtNamedFunction || it is KtClass) {
+                    it.writeReferenceNames(editor)
+                }
             }
         } else {
             actionParent.writeReferenceNames(editor)
