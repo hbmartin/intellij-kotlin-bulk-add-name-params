@@ -1,17 +1,23 @@
-# Bulk Add Name Params
+# Bulk Add Name Params <img align="right" src="media/pluginIcon.png" />
 
 ![Build](https://github.com/hbmartin/intellij-kotlin-bulk-add-name-params/workflows/Build/badge.svg)
 ![Linting](https://github.com/hbmartin/intellij-kotlin-bulk-add-name-params/workflows/Linting/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/18248-kotlin-bulk-add-name-params.svg)](https://plugins.jetbrains.com/plugin/18248-kotlin-bulk-add-name-params)
-[![GitHub issues](https://img.shields.io/github/issues/hbmartin/intellij-kotlin-bulk-add-name-params)](https://github.com/hbmartin/intellij-kotlin-bulk-add-name-params/issues)
 [![CodeFactor](https://www.codefactor.io/repository/github/hbmartin/intellij-kotlin-bulk-add-name-params/badge)](https://www.codefactor.io/repository/github/hbmartin/intellij-kotlin-bulk-add-name-params)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=hbmartin_intellij-kotlin-bulk-add-name-params&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=hbmartin_intellij-kotlin-bulk-add-name-params)
 
-<!-- Plugin description -->
-Adds named params to all callers of a given Kotlin method or file
-<!-- Plugin description end -->
-
 <img src="media/demo.gif" />
+
+<!-- Plugin description -->
+Quickly add named parameters to all callers of a Kotlin class, method or file.
+
+Using it is easy:
+
+1. Place your cursor in a class or function - or in a file with top-level classes or function
+2. Search for this action or choose "Bulk Add Name Params Action" from the bottom of the Code menu
+3. jk, there is no step 3
+
+<!-- Plugin description end -->
 
 ## Installation
 
@@ -24,12 +30,6 @@ Adds named params to all callers of a given Kotlin method or file
 
   Download the [latest release](https://github.com/hbmartin/intellij-kotlin-bulk-add-name-params/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
-
-## Usage
-
-1. Place your cursor in a class or function - or in a file containing classes or function
-2. Search for this action or choose "Bulk Add Name Params Action" from the bottom of the Code menu
-3. Inspect results to ensure accuracy, best done with source control
 
 ## Contributing
 
