@@ -1,19 +1,16 @@
 # Bulk Add Name Params
 
 ![Build](https://github.com/hbmartin/intellij-kotlin-bulk-add-name-params/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/18248-kotlin-bulk-add-name-params.svg)](https://plugins.jetbrains.com/plugin/18248-kotlin-bulk-add-name-params)
 [![GitHub issues](https://img.shields.io/github/issues/hbmartin/intellij-kotlin-bulk-add-name-params)](https://github.com/hbmartin/intellij-kotlin-bulk-add-name-params/issues)
 [![CodeFactor](https://www.codefactor.io/repository/github/hbmartin/intellij-kotlin-bulk-add-name-params/badge)](https://www.codefactor.io/repository/github/hbmartin/intellij-kotlin-bulk-add-name-params)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=hbmartin_intellij-kotlin-bulk-add-name-params&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=hbmartin_intellij-kotlin-bulk-add-name-params)
 
-## Template ToDo list
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the Plugin ID in the above README badges.
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html).
-
 <!-- Plugin description -->
 Adds named params to all callers of a given Kotlin method or file
 <!-- Plugin description end -->
+
+<img src="media/demo.gif" />
 
 ## Installation
 
