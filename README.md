@@ -1,6 +1,7 @@
 # Bulk Add Name Params
 
 ![Build](https://github.com/hbmartin/intellij-kotlin-bulk-add-name-params/workflows/Build/badge.svg)
+![Linting](https://github.com/hbmartin/intellij-kotlin-bulk-add-name-params/workflows/Linting/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/18248-kotlin-bulk-add-name-params.svg)](https://plugins.jetbrains.com/plugin/18248-kotlin-bulk-add-name-params)
 [![GitHub issues](https://img.shields.io/github/issues/hbmartin/intellij-kotlin-bulk-add-name-params)](https://github.com/hbmartin/intellij-kotlin-bulk-add-name-params/issues)
 [![CodeFactor](https://www.codefactor.io/repository/github/hbmartin/intellij-kotlin-bulk-add-name-params/badge)](https://www.codefactor.io/repository/github/hbmartin/intellij-kotlin-bulk-add-name-params)
