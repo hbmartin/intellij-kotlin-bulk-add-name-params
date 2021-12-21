@@ -4,6 +4,8 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.command.executeCommand
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
@@ -24,13 +26,16 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
 
     override fun actionPerformed(anActionEvent: AnActionEvent) {
         val (editor, psiFile) = anActionEvent.getDetails()
-        if (!(editor to psiFile).isEligible()) { return }
+        if (!(editor to psiFile).isEligible()) {
+            return
+        }
         val element = editor?.caretModel?.offset?.let { psiFile?.findElementAt(it) } ?: return
 
         ProgressManager.getInstance().runProcessWithProgressSynchronously(
             {
-                ProgressManager.getInstance().progressIndicator?.isIndeterminate = true
-                element.findParentAndWriteNames(editor)
+                val indicator = ProgressManager.getInstance().progressIndicator
+                indicator.isIndeterminate = true
+                element.findParentAndWriteNames(editor, indicator.modalityState)
             },
             "Finding usages and adding name labels",
             false,
@@ -38,7 +43,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
         )
     }
 
-    private fun PsiElement.findParentAndWriteNames(editor: Editor?) {
+    private fun PsiElement.findParentAndWriteNames(editor: Editor?, modalityState: ModalityState) {
         val app = ApplicationManager.getApplication()
         val searchResultsForParentElementReferencesToThisElement = app.runReadAction<List<PsiElement>> {
             val parent = this.findFirstEligibleParent()
@@ -52,12 +57,18 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
             }.flatten()
         }
 
-
-        app.runWriteAction {
-            searchResultsForParentElementReferencesToThisElement.forEach {
-                (it as? KtCallElement)?.writeReferenceNames(editor)
-            }
-        }
+        app.invokeLater(
+            {
+                executeCommand(project = project) {
+                    app.runWriteAction {
+                        searchResultsForParentElementReferencesToThisElement.forEach {
+                            (it as? KtCallElement)?.writeReferenceNames(editor)
+                        }
+                    }
+                }
+            },
+            modalityState
+        )
     }
 
     override fun update(e: AnActionEvent) {
