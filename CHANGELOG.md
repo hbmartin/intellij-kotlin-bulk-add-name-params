@@ -1,7 +1,7 @@
-<!-- Keep a Changelog guide -> https://keepachangelog.com -->
-
-# intellij-kotlin-bulk-add-name-params Changelog
+# Bulk Add Name Params Changelog
 
 ## [Unreleased]
+
+## [0.0.1] - 2021-12-20
 ### Added
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
+- Initial release
