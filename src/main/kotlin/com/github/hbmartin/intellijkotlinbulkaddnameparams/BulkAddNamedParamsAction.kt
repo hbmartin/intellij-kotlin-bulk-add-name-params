@@ -4,9 +4,10 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.application.ModalityState.defaultModalityState
 import com.intellij.openapi.command.executeCommand
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
@@ -35,7 +36,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
             {
                 val indicator = ProgressManager.getInstance().progressIndicator
                 indicator.isIndeterminate = true
-                element.findParentAndWriteNames(editor, indicator.modalityState)
+                element.findParentAndWriteNames(editor, indicator)
             },
             "Finding usages and adding name labels",
             false,
@@ -43,7 +44,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
         )
     }
 
-    private fun PsiElement.findParentAndWriteNames(editor: Editor?, modalityState: ModalityState) {
+    private fun PsiElement.findParentAndWriteNames(editor: Editor?, indicator: ProgressIndicator) {
         val app = ApplicationManager.getApplication()
         val searchResultsForParentElementReferencesToThisElement = app.runReadAction<List<PsiElement>> {
             val parent = this.findFirstEligibleParent()
@@ -61,13 +62,15 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
             {
                 executeCommand(project = project) {
                     app.runWriteAction {
-                        searchResultsForParentElementReferencesToThisElement.forEach {
-                            (it as? KtCallElement)?.writeReferenceNames(editor)
+                        val total = searchResultsForParentElementReferencesToThisElement.size
+                        searchResultsForParentElementReferencesToThisElement.forEachIndexed { index, psiElement ->
+                            indicator.text2 = "Updating ${index + 1} / $total"
+                            (psiElement as? KtCallElement)?.writeReferenceNames(editor)
                         }
                     }
                 }
             },
-            modalityState
+            defaultModalityState()
         )
     }
 
@@ -100,3 +103,16 @@ private fun Pair<Editor?, PsiFile?>.isEligible(): Boolean =
 
 private fun AnActionEvent.getDetails(): Pair<Editor?, PsiFile?> =
     getData(CommonDataKeys.EDITOR) to getData(CommonDataKeys.PSI_FILE)
+
+private fun printThread(marker: String) {
+    println(
+        "BULKADD: $marker: "
+        +
+        when {
+            ApplicationManager.getApplication().isDispatchThread ->"Running on EDT"
+            else                              -> "Running on BGT"
+        }
+        +
+        " - ${Thread.currentThread().name.take(50)}..."
+    )
+}
