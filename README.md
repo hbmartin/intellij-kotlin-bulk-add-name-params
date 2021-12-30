@@ -14,7 +14,9 @@ Quickly add named parameters to all callers of a Kotlin class, method or file.
 Using it is easy:
 
 1. Place your cursor in a class or function - or in a file with top-level classes or function
+
 2. Search for this action or choose "Bulk Add Name Params Action" from the bottom of the Code menu
+
 3. jk, there is no step 3
 
 <!-- Plugin description end -->

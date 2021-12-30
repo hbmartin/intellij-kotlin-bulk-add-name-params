@@ -103,16 +103,3 @@ private fun Pair<Editor?, PsiFile?>.isEligible(): Boolean =
 
 private fun AnActionEvent.getDetails(): Pair<Editor?, PsiFile?> =
     getData(CommonDataKeys.EDITOR) to getData(CommonDataKeys.PSI_FILE)
-
-private fun printThread(marker: String) {
-    println(
-        "BULKADD: $marker: "
-        +
-        when {
-            ApplicationManager.getApplication().isDispatchThread ->"Running on EDT"
-            else                              -> "Running on BGT"
-        }
-        +
-        " - ${Thread.currentThread().name.take(50)}..."
-    )
-}
