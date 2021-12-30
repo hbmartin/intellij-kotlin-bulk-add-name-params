@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.psi.KtCallElement
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.psiUtil.getCallNameExpression
 
 class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
     private val addNames = AddNamesToCallArgumentsIntention()
@@ -32,16 +33,14 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
         }
         val element = editor?.caretModel?.offset?.let { psiFile?.findElementAt(it) } ?: return
 
-        ProgressManager.getInstance().runProcessWithProgressSynchronously(
-            {
-                val indicator = ProgressManager.getInstance().progressIndicator
-                indicator.isIndeterminate = true
-                element.findParentAndWriteNames(editor, indicator)
-            },
-            "Finding usages and adding name labels",
-            false,
-            element.project
-        )
+        ProgressManager.getInstance().let { progressManager ->
+            progressManager.runProcessWithProgressSynchronously(
+                { element.findParentAndWriteNames(editor, progressManager.progressIndicator) },
+                "Finding usages and adding name labels",
+                false,
+                element.project
+            )
+        }
     }
 
     private fun PsiElement.findParentAndWriteNames(editor: Editor?, indicator: ProgressIndicator) {
