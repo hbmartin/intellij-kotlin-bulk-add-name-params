@@ -46,7 +46,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
 
     private fun PsiElement.findParentAndWriteNames(editor: Editor?, indicator: ProgressIndicator) {
         val app = ApplicationManager.getApplication()
-        val searchResultsForParentElementReferencesToThisElement = app.runReadAction<List<PsiElement>> {
+        val elementsReferencingThisElement = app.runReadAction<List<PsiElement>> {
             val parent = this.findFirstEligibleParent()
             val elementsToSearchFor = if (parent is PsiFile) {
                 parent.children.filter { it is KtNamedFunction || it is KtClass }
@@ -62,10 +62,11 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
             {
                 executeCommand(project = project) {
                     app.runWriteAction {
-                        val total = searchResultsForParentElementReferencesToThisElement.size
-                        searchResultsForParentElementReferencesToThisElement.forEachIndexed { index, psiElement ->
-                            indicator.text2 = "Updating ${index + 1} / $total"
-                            (psiElement as? KtCallElement)?.writeReferenceNames(editor)
+                        elementsReferencingThisElement.forEach { psiElement ->
+                            (psiElement as? KtCallElement)?.run {
+                                indicator.text = "Updating ${this.getCallNameExpression()?.getReferencedName()} in ${this.containingFile.name}"
+                                writeReferenceNames(editor)
+                            }
                         }
                     }
                 }
