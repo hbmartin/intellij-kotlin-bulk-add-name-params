@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.psi.KtCallElement
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.psiUtil.getCallNameExpression
 
 class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
     private val addNames = AddNamesToCallArgumentsIntention()
@@ -32,10 +33,13 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
         }
         val element = editor?.caretModel?.offset?.let { psiFile?.findElementAt(it) } ?: return
 
+        printThread("actionPerformed")
         ProgressManager.getInstance().runProcessWithProgressSynchronously(
             {
+                printThread("runProcessWithProgressSynchronously")
                 val indicator = ProgressManager.getInstance().progressIndicator
                 indicator.isIndeterminate = true
+                println("BULKADD: modality: ${indicator.modalityState}")
                 element.findParentAndWriteNames(editor, indicator)
             },
             "Finding usages and adding name labels",
@@ -47,21 +51,29 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
     private fun PsiElement.findParentAndWriteNames(editor: Editor?, indicator: ProgressIndicator) {
         val app = ApplicationManager.getApplication()
         val elementsReferencingThisElement = app.runReadAction<List<PsiElement>> {
+            printThread("runReadAction")
+
             val parent = this.findFirstEligibleParent()
             val elementsToSearchFor = if (parent is PsiFile) {
                 parent.children.filter { it is KtNamedFunction || it is KtClass }
             } else {
                 listOf(parent)
             }
+            println("BULKADD: modality prior to ref search: ${indicator.modalityState}")
             return@runReadAction elementsToSearchFor.map { searchElement ->
                 ReferencesSearch.search(searchElement).findAll().map { it.element.parent }
             }.flatten()
         }
+        println("BULKADD: modality after ref search: ${indicator.modalityState}")
 
         app.invokeLater(
             {
+                printThread("invokeLater")
+
                 executeCommand(project = project) {
+                    printThread("executeCommand")
                     app.runWriteAction {
+                        printThread("runWriteAction")
                         elementsReferencingThisElement.forEach { psiElement ->
                             (psiElement as? KtCallElement)?.run {
                                 indicator.text = "Updating ${this.getCallNameExpression()?.getReferencedName()} in ${this.containingFile.name}"
@@ -80,6 +92,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
     }
 
     private fun KtCallElement.writeReferenceNames(editor: Editor?) {
+        println("BULKADD: writing ${this.getCallNameExpression()?.getReferencedName()} from ${this.containingFile.name}")
         addNames.applicabilityRange(this)?.let { _ ->
             addNames.applyTo(this, editor)
             this.containingFile.commitAndUnblockDocument()
@@ -104,3 +117,16 @@ private fun Pair<Editor?, PsiFile?>.isEligible(): Boolean =
 
 private fun AnActionEvent.getDetails(): Pair<Editor?, PsiFile?> =
     getData(CommonDataKeys.EDITOR) to getData(CommonDataKeys.PSI_FILE)
+
+private fun printThread(marker: String) {
+    println(
+        "BULKADD: $marker: "
+        +
+        when {
+            ApplicationManager.getApplication().isDispatchThread ->"Running on EDT"
+            else                              -> "Running on BGT"
+        }
+        +
+        " - ${Thread.currentThread().name.take(50)}..."
+    )
+}
