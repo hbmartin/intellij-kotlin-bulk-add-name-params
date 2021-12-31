@@ -63,7 +63,9 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
                     app.runWriteAction {
                         elementsReferencingThisElement.forEach { psiElement ->
                             (psiElement as? KtCallElement)?.run {
-                                indicator.text = "Updating ${this.getCallNameExpression()?.getReferencedName()} in ${this.containingFile.name}"
+                                indicator.text = "Updating " +
+                                    "${this.getCallNameExpression()?.getReferencedName()} " +
+                                    "in ${this.containingFile.name}"
                                 writeReferenceNames(editor)
                             }
                         }
