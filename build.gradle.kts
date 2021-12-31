@@ -123,4 +123,10 @@ tasks {
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
         channels.set(listOf(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first()))
     }
+
+    // this is unnecessary, leaky, and slow
+    // https://youtrack.jetbrains.com/issue/KTIJ-11598
+    buildSearchableOptions {
+        enabled = false
+    }
 }
