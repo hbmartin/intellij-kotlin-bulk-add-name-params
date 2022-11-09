@@ -60,11 +60,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
             }
 
             val enumEntries = elementsToSearchFor.mapNotNull { it as? KtClass }.flatMap {
-                if (it.isEnum()) {
-                    it.body?.getChildrenOfType<KtEnumEntry>()?.toList() ?: emptyList()
-                } else {
-                    emptyList()
-                }
+                it.body?.getChildrenOfType<KtEnumEntry>()?.toList().orEmpty()
             }
 
             return@runReadAction elementsToSearchFor.map { searchElement ->
