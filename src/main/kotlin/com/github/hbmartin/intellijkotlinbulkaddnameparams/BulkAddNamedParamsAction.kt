@@ -18,9 +18,15 @@ import org.jetbrains.kotlin.idea.intentions.AddNamesToCallArgumentsIntention
 import org.jetbrains.kotlin.idea.intentions.ChopArgumentListIntention
 import org.jetbrains.kotlin.psi.KtCallElement
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtSuperTypeCallEntry
+import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.getCallNameExpression
+import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
+
+private const val CHOP_ARGS_AFTER_LENGTH = 80
 
 class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
     private val addNames = AddNamesToCallArgumentsIntention()
@@ -52,9 +58,18 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
             } else {
                 listOf(parent)
             }
+
+            val enumEntries = elementsToSearchFor.mapNotNull { it as? KtClass }.flatMap {
+                if (it.isEnum()) {
+                    it.body?.getChildrenOfType<KtEnumEntry>()?.toList() ?: emptyList()
+                } else {
+                    emptyList()
+                }
+            }
+
             return@runReadAction elementsToSearchFor.map { searchElement ->
                 ReferencesSearch.search(searchElement).findAll().map { it.element.parent }
-            }.flatten()
+            }.flatten() + enumEntries
         }
 
         app.invokeLater(
@@ -66,7 +81,11 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
                                 indicator.text = "Updating " +
                                     "${this.getCallNameExpression()?.getReferencedName()} " +
                                     "in ${this.containingFile.name}"
-                                writeReferenceNames(editor)
+                                this.writeReferenceNames(editor)
+                            }
+                            (psiElement as? KtEnumEntry)?.run {
+                                indicator.text = "Updating ${this.name} in ${this.containingFile.name}"
+                                this.findDescendantOfType<KtSuperTypeCallEntry>()?.writeReferenceNames(editor)
                             }
                         }
                     }
@@ -85,7 +104,9 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
             addNames.applyTo(this, editor)
             this.containingFile.commitAndUnblockDocument()
             this.valueArgumentList?.let {
-                chopArguments.applyTo(it, editor)
+                if (this.textLength > CHOP_ARGS_AFTER_LENGTH) {
+                    chopArguments.applyTo(it, editor)
+                }
                 this.containingFile.commitAndUnblockDocument()
             }
         }
