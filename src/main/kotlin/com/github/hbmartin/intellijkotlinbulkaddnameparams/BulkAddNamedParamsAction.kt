@@ -67,6 +67,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
             }
 
             return@runReadAction elementsToSearchFor.map { searchElement ->
+                @Suppress("AvoidMutableCollections")
                 ReferencesSearch.search(searchElement).findAll().map { it.element.parent }
             }.flatten() + enumEntries
         }
