@@ -31,6 +31,7 @@ kotlin {
 dependencies {
 //    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
     implementation(kotlin("reflect"))
+    detektPlugins("com.github.hbmartin:hbmartin-detekt-rules:0.1.0")
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
