@@ -29,13 +29,11 @@ private const val CHOP_ARGS_AFTER_LENGTH = 80
 
 class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
     private val addNames = AddNamesToCallArgumentsIntention()
-    private val chopArguments = try {
-        // Looks like this is getting moved in 231, revisit with subsequent IJ releases
-        // https://github.com/JetBrains/intellij-community/commit/6063c6f834a9f3baab1270ddfbb7e4f6a38557ba#diff-4eade27e93683029ca59f5efcd060c539dde97a6de381106fd33d5e8d4b0f1f4
+
+    // Looks like this is getting moved in 231, revisit with subsequent IJ releases
+    // https://github.com/JetBrains/intellij-community/commit/6063c6f834a9f3baab1270ddfbb7e4f6a38557ba#diff-4eade27e93683029ca59f5efcd060c539dde97a6de381106fd33d5e8d4b0f1f4
+    private val chopArguments =
         org.jetbrains.kotlin.idea.intentions.ChopArgumentListIntention()
-    } catch (e: Exception) {
-        null
-    }
 
     override fun actionPerformed(anActionEvent: AnActionEvent) {
         val (editor, psiFile) = anActionEvent.getDetails()
@@ -49,7 +47,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
                 { element.findParentAndWriteNames(editor, progressManager.progressIndicator) },
                 "Finding usages and adding name labels",
                 false,
-                element.project
+                element.project,
             )
         }
     }
@@ -92,7 +90,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
                     }
                 }
             },
-            defaultModalityState()
+            defaultModalityState(),
         )
     }
 
@@ -106,7 +104,7 @@ class BulkAddNamedParamsAction : AnAction("Bulk Add Named Params Action") {
             this.containingFile.commitAndUnblockDocument()
             this.valueArgumentList?.let {
                 if (this.textLength > CHOP_ARGS_AFTER_LENGTH) {
-                    chopArguments?.applyTo(it, editor)
+                    chopArguments.applyTo(it, editor)
                 }
                 this.containingFile.commitAndUnblockDocument()
             }
